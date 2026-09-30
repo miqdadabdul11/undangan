@@ -40,7 +40,7 @@
     </section>
 
     <main id="invitation" aria-live="off">
-      <section class="scene intro" id="pembuka">
+      <section class="scene intro" id="pembuka" data-menu="teks.menuPembuka">
         <div class="section-inner intro-inner reveal">
           <div class="date-rail"><span id="introDay"></span><i></i><span id="introMonth"></span><i></i><span id="introYear"></span><b aria-hidden="true">♡</b></div>
           <p class="eyebrow italic" id="introEyebrow"></p>
@@ -50,7 +50,7 @@
         </div>
       </section>
 
-      <section class="scene person-section" id="mempelai-wanita">
+      <section class="scene person-section" id="mempelai-wanita" data-menu="mempelai.panggilanWanita">
         <div class="section-inner person-inner reveal">
           <p class="script-word" id="brideRole"></p>
           <h2 class="display person-name" id="brideName"></h2>
@@ -59,7 +59,7 @@
         </div>
       </section>
 
-      <section class="scene person-section" id="mempelai-pria">
+      <section class="scene person-section" id="mempelai-pria" data-menu="mempelai.panggilanPria">
         <div class="section-inner person-inner reveal">
           <p class="script-word" id="groomRole"></p>
           <h2 class="display person-name" id="groomName"></h2>
@@ -68,22 +68,23 @@
         </div>
       </section>
 
-      <section class="scene save-date" id="save-the-date">
+      <section class="scene save-date" id="save-the-date" data-menu="teks.saveTheDate">
         <div class="section-inner save-inner reveal">
           <p class="script-word countdown-script" id="countdownScript"></p>
           <h2 class="display save-title" id="saveTitle"></h2>
-          <div class="countdown" aria-label="Hitung mundur">
+          <div class="countdown" id="countdownDisplay" aria-label="Hitung mundur">
             <div><b id="days">00</b><span id="daysLabel"></span></div>
             <div><b id="hours">00</b><span id="hoursLabel"></span></div>
             <div><b id="minutes">00</b><span id="minutesLabel"></span></div>
             <div><b id="seconds">00</b><span id="secondsLabel"></span></div>
           </div>
+          <p class="countdown-complete" id="countdownComplete" hidden></p>
           <div class="date-mark"><i></i><p id="saveDate"></p><i></i></div>
           <blockquote><p class="italic" id="saveQuote"></p><cite id="saveSource"></cite></blockquote>
         </div>
       </section>
 
-      <section class="scene story-section" id="cerita-cinta">
+      <section class="scene story-section" id="cerita-cinta" data-menu="teks.ceritaCinta">
         <div class="story-inner section-inner reveal">
           <h2 class="vertical-title display" id="storyTitle"></h2>
           <div class="story-content">
@@ -94,7 +95,7 @@
         </div>
       </section>
 
-      <section class="scene details-section" id="detail-acara">
+      <section class="scene details-section" id="detail-acara" data-menu="teks.menuDetailAcara">
         <div class="section-inner reveal">
           <header class="section-heading"><p class="script-word" id="eventScript"></p><h2 class="display" id="eventTitle"></h2></header>
           <div class="event-timeline" id="eventTimeline"></div>
@@ -105,23 +106,28 @@
         </div>
       </section>
 
-      <section class="scene gallery-section" id="lembaran-kenangan">
+      <section class="scene gallery-section" id="lembaran-kenangan" data-menu="teks.lembaranKenangan">
         <div class="section-inner gallery-inner reveal">
           <header class="section-heading"><p class="script-word" id="galleryScript"></p><h2 class="display" id="galleryTitle"></h2></header>
-          <div class="gallery-strip" id="galleryStrip" tabindex="0"></div>
-          <div class="read-more"><span id="galleryHint"></span><i></i><b aria-hidden="true">→</b></div>
+          <div class="gallery-carousel">
+            <button class="gallery-arrow gallery-previous" id="galleryPrevious" type="button"><span class="visually-hidden" id="galleryPreviousLabel"></span><b aria-hidden="true">‹</b></button>
+            <div class="gallery-strip" id="galleryStrip" tabindex="0" role="region"></div>
+            <button class="gallery-arrow gallery-next" id="galleryNext" type="button"><span class="visually-hidden" id="galleryNextLabel"></span><b aria-hidden="true">›</b></button>
+          </div>
+          <div class="gallery-bottom"><div class="gallery-dots" id="galleryDots" role="group"></div><div class="read-more" id="galleryHintWrap"><span id="galleryHint"></span><i></i><b aria-hidden="true">→</b></div></div>
         </div>
       </section>
 
-      <section class="scene rsvp-section" id="rsvp-section">
+      <section class="scene rsvp-section" id="rsvp-section" data-menu="teks.rsvpTitle">
         <div class="section-inner reveal">
           <header class="section-heading"><p class="script-word" id="rsvpScript"></p><h2 class="display" id="rsvpTitle"></h2></header>
           <form id="rsvpForm" novalidate></form>
           <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+          <div class="wishes" id="wishes" aria-live="polite"></div>
         </div>
       </section>
 
-      <section class="scene envelope-section" id="amplop-digital">
+      <section class="scene envelope-section" id="amplop-digital" data-menu="teks.amplop">
         <div class="section-inner envelope-inner reveal">
           <p class="eyebrow italic" id="envelopeEyebrow"></p>
           <h2 class="display" id="envelopeTitle"></h2>
@@ -130,7 +136,7 @@
         </div>
       </section>
 
-      <section class="scene closing-section" id="penutup">
+      <section class="scene closing-section" id="penutup" data-menu="teks.terimaKasih">
         <div class="section-inner closing-inner reveal">
           <p class="eyebrow italic" id="closingEyebrow"></p>
           <h2 class="script-word thanks-script" id="thanksScript"></h2>
@@ -146,18 +152,24 @@
   </div>
 
   <div class="floating-controls" id="floatingControls" hidden>
-    <button class="menu-trigger" id="menuOpen" type="button"><span id="menuLabel"></span><b aria-hidden="true">♡</b></button>
+    <button class="menu-trigger" id="menuOpen" type="button" aria-controls="menuPanel" aria-expanded="false"><span id="menuLabel"></span><b aria-hidden="true">♡</b></button>
     <button class="music-trigger" id="musicToggle" type="button" hidden>
       <span class="record" aria-hidden="true"><i></i></span><span class="visually-hidden" id="musicLabel"></span>
     </button>
   </div>
-  <nav class="menu-panel" id="menuPanel" aria-hidden="true" inert>
-    <div class="menu-top"><p class="eyebrow italic" id="menuEyebrow"></p><button class="icon-button" id="menuClose" type="button"><span class="visually-hidden" id="menuCloseLabel"></span><b aria-hidden="true">×</b></button></div>
-    <div class="menu-links" id="menuLinks"></div>
+  <nav class="menu-panel" id="menuPanel" aria-label="Navigasi undangan" aria-hidden="true" inert>
+    <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
+    <div class="menu-shell">
+      <header class="menu-top"><p class="eyebrow italic" id="menuEyebrow"></p><button class="icon-button menu-close" id="menuClose" type="button"><span class="visually-hidden" id="menuCloseLabel"></span><b aria-hidden="true">×</b></button></header>
+      <div class="menu-scroll-area"><div class="menu-links" id="menuLinks"></div><div class="menu-fade" aria-hidden="true"></div></div>
+      <footer class="menu-footer"><span id="menuCouple"></span><span id="menuWeddingDate"></span></footer>
+    </div>
   </nav>
-  <div class="lightbox" id="lightbox" aria-hidden="true" inert>
-    <button class="icon-button lightbox-close" id="lightboxClose" type="button"><span class="visually-hidden" id="lightboxCloseLabel"></span><b aria-hidden="true">×</b></button>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Pratinjau foto galeri" aria-hidden="true" inert>
+    <button class="icon-button lightbox-nav" id="lightboxPrevious" type="button"><span class="visually-hidden" id="lightboxPreviousLabel"></span><b aria-hidden="true">‹</b></button>
     <img id="lightboxImage" alt="">
+    <button class="icon-button lightbox-nav" id="lightboxNext" type="button"><span class="visually-hidden" id="lightboxNextLabel"></span><b aria-hidden="true">›</b></button>
+    <button class="icon-button lightbox-close" id="lightboxClose" type="button"><span class="visually-hidden" id="lightboxCloseLabel"></span><b aria-hidden="true">×</b></button>
   </div>
   <audio id="weddingMusic" loop preload="none"></audio>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

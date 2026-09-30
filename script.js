@@ -8,6 +8,7 @@ const make = (tag, className, text) => {
   return element;
 };
 let undangan;
+let penyimpananKey = 'undangan-ucapan-v1';
 let siapDibuka = false;
 let sudahDibuka = false;
 let timerToast;
@@ -54,10 +55,10 @@ function buatField(labelText, control) {
   return label;
 }
 
-// Modul data: seluruh konten halaman dibaca dari satu berkas JSON klien.
 function renderData(data) {
   undangan = data;
   const namaPasangan = `${data.mempelai.panggilanWanita} & ${data.mempelai.panggilanPria}`;
+  penyimpananKey = `undangan-ucapan-${namaPasangan.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   document.title = `Undangan ${namaPasangan}`;
 
   isi('coverEyebrow', data.teks.theWeddingOf);
@@ -69,7 +70,6 @@ function renderData(data) {
   isi('openLabel', data.teks.buka);
   isi('openingEyebrow', data.teks.theWeddingOf);
   isi('openingBride', data.mempelai.panggilanWanita);
-  isi('openingGroom', data.mempelai.panggilanPria);
   isi('openingSkipLabel', data.teks.lewatiIntro);
   byId('cover').style.backgroundImage = data.foto.cover ? `url("${data.foto.cover}")` : '';
   byId('ambient').style.backgroundImage = data.foto.cover ? `url("${data.foto.cover}")` : '';
@@ -101,6 +101,7 @@ function renderData(data) {
   isi('hoursLabel', data.teks.jam);
   isi('minutesLabel', data.teks.menit);
   isi('secondsLabel', data.teks.detik);
+  isi('countdownComplete', data.teks.countdownDone);
   isi('saveDate', `${data.tanggal.angka.hari} / ${data.tanggal.angka.bulan} / ${data.tanggal.angka.tahun}`);
   isi('saveQuote', data.kutipanTanggal);
   isi('saveSource', data.sumberKutipanTanggal);
@@ -130,11 +131,19 @@ function renderData(data) {
   isi('galleryScript', data.teks.kenanganScript);
   isi('galleryTitle', data.teks.lembaranKenangan);
   isi('galleryHint', data.teks.scrollReadMore);
+  isi('galleryPreviousLabel', data.teks.galleryPrevious);
+  isi('galleryNextLabel', data.teks.galleryNext);
+  isi('lightboxPreviousLabel', data.teks.galleryPrevious);
+  isi('lightboxNextLabel', data.teks.galleryNext);
+  isi('lightboxCloseLabel', data.teks.lightboxTutup);
+  byId('galleryStrip').setAttribute('aria-label', data.teks.lembaranKenangan);
+  byId('galleryDots').setAttribute('aria-label', data.teks.galleryDots);
   renderGaleri(data.galeri);
 
   isi('rsvpScript', data.teks.rsvpScript);
   isi('rsvpTitle', data.teks.rsvpTitle);
   renderForm(data.teks);
+  renderUcapan(ambilUcapan());
 
   isi('envelopeEyebrow', data.teks.amplopEyebrow);
   isi('envelopeTitle', data.teks.amplop);
@@ -202,22 +211,105 @@ function buatLinkKalender(data) {
 }
 
 // Modul galeri: foto dibuat sebagai elemen, sehingga nama file dan alt tetap aman.
+let lightboxIndex = 0;
+let lightboxReturnFocus = null;
+let galleryDragStart = null;
+let suppressGalleryClickUntil = 0;
 function renderGaleri(foto) {
   const strip = byId('galleryStrip');
-  foto.forEach(item => {
+  const dots = byId('galleryDots');
+  foto.forEach((item, index) => {
     const button = make('button', 'gallery-photo');
     const image = make('img');
     image.src = item.src;
     image.alt = item.alt;
     image.loading = 'lazy';
     image.decoding = 'async';
+    image.draggable = false;
     button.type = 'button';
     button.setAttribute('aria-label', item.alt);
     button.append(image);
-    button.addEventListener('click', () => bukaLightbox(item));
+    button.addEventListener('click', event => {
+      if (performance.now() < suppressGalleryClickUntil) {
+        event.preventDefault();
+        return;
+      }
+      bukaLightbox(index, button);
+    });
     image.addEventListener('error', () => button.remove(), { once: true });
     strip.append(button);
+
+    const dot = make('button', 'gallery-dot');
+    dot.type = 'button';
+    dot.setAttribute('aria-label', `${undangan.teks.galleryPhoto} ${index + 1}`);
+    dot.addEventListener('click', () => button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }));
+    dots.append(dot);
   });
+  byId('galleryPrevious').addEventListener('click', () => geserGaleri(-1));
+  byId('galleryNext').addEventListener('click', () => geserGaleri(1));
+  strip.addEventListener('scroll', sembunyikanPetunjukGaleri, { passive: true });
+  strip.addEventListener('pointerdown', mulaiDragGaleri);
+  strip.addEventListener('pointermove', dragGaleri);
+  strip.addEventListener('pointerup', akhiriDragGaleri);
+  strip.addEventListener('pointercancel', akhiriDragGaleri);
+  pantauFotoAktif(strip);
+}
+
+function geserGaleri(arah) {
+  const strip = byId('galleryStrip');
+  strip.scrollBy({ left: arah * strip.clientWidth * .82, behavior: 'smooth' });
+}
+
+function sembunyikanPetunjukGaleri() {
+  const hint = byId('galleryHintWrap');
+  if (byId('galleryStrip').scrollLeft <= 8 || hint.classList.contains('is-hidden')) return;
+  hint.classList.add('is-hidden');
+  byId('galleryStrip').removeEventListener('scroll', sembunyikanPetunjukGaleri);
+}
+
+function mulaiDragGaleri(event) {
+  if (event.pointerType !== 'mouse' || event.button !== 0) return;
+  galleryDragStart = { x: event.clientX, scrollLeft: event.currentTarget.scrollLeft, moved: false };
+  event.currentTarget.setPointerCapture(event.pointerId);
+  event.currentTarget.classList.add('is-dragging');
+}
+
+function dragGaleri(event) {
+  if (!galleryDragStart) return;
+  const delta = event.clientX - galleryDragStart.x;
+  if (Math.abs(delta) > 4) galleryDragStart.moved = true;
+  event.currentTarget.scrollLeft = galleryDragStart.scrollLeft - delta;
+}
+
+function akhiriDragGaleri(event) {
+  if (!galleryDragStart) return;
+  if (galleryDragStart.moved) suppressGalleryClickUntil = performance.now() + 350;
+  galleryDragStart = null;
+  event.currentTarget.classList.remove('is-dragging');
+  if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+}
+
+function pantauFotoAktif(strip) {
+  const photos = [...strip.querySelectorAll('.gallery-photo')];
+  const dots = [...byId('galleryDots').querySelectorAll('.gallery-dot')];
+  const aktifkan = index => dots.forEach((dot, dotIndex) => {
+    dot.classList.toggle('is-active', dotIndex === index);
+    if (dotIndex === index) dot.setAttribute('aria-current', 'true');
+    else dot.removeAttribute('aria-current');
+  });
+  aktifkan(0);
+  if (!('IntersectionObserver' in window)) return;
+  const ratios = new Map();
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const index = photos.indexOf(entry.target);
+      if (entry.isIntersecting) ratios.set(index, entry.intersectionRatio);
+      else ratios.delete(index);
+    });
+    const current = [...ratios.entries()].sort((left, right) => right[1] - left[1])[0]?.[0];
+    if (current !== undefined) aktifkan(current);
+  }, { root: strip, threshold: [0, .4, .65, .9] });
+  photos.forEach(photo => observer.observe(photo));
 }
 
 function renderForm(teks) {
@@ -275,9 +367,21 @@ function kirimUcapan(event) {
     event.currentTarget.elements.nama.focus();
     return;
   }
+  const ucapan = {
+    nama,
+    kehadiran: String(formData.get('kehadiran')),
+    jumlah: String(formData.get('jumlah')),
+    ucapan: String(formData.get('ucapan') || '').trim(),
+    waktu: new Date().toISOString()
+  };
+  const tersimpan = simpanUcapan(ucapan);
+  if (tersimpan) {
+    renderUcapan(ambilUcapan());
+    event.currentTarget.reset();
+  }
   const nomor = String(undangan.whatsappPemilik || '').replace(/\D/g, '');
   if (!nomor) {
-    isi('formStatus', undangan.teks.whatsappNomorError);
+    isi('formStatus', `${tersimpan ? undangan.teks.formSuccess : undangan.teks.formStorageError} ${undangan.teks.whatsappNomorError}`);
     return;
   }
   const pesan = [
@@ -292,8 +396,47 @@ function kirimUcapan(event) {
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   const status = byId('formStatus');
-  status.replaceChildren(document.createTextNode(`${undangan.teks.whatsappStatus} `), link);
+  status.replaceChildren(document.createTextNode(`${tersimpan ? undangan.teks.formSuccess : undangan.teks.formStorageError} ${undangan.teks.whatsappStatus} `), link);
   window.open(link.href, '_blank', 'noopener,noreferrer');
+}
+
+// Ganti ke Supabase/Firebase di sini jika RSVP memakai database bersama.
+function simpanUcapan(ucapan) {
+  try {
+    const daftar = ambilUcapan();
+    daftar.unshift(ucapan);
+    window.localStorage.setItem(penyimpananKey, JSON.stringify(daftar.slice(0, 50)));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function ambilUcapan() {
+  try {
+    const daftar = JSON.parse(window.localStorage.getItem(penyimpananKey) || '[]');
+    return Array.isArray(daftar) ? daftar.filter(item => item && typeof item.nama === 'string') : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function renderUcapan(daftar) {
+  const container = byId('wishes');
+  container.replaceChildren();
+  if (!daftar.length) {
+    container.append(make('p', 'empty-wishes', undangan.teks.wishesEmpty));
+    return;
+  }
+  daftar.forEach(item => {
+    const article = make('article', 'wish');
+    const heading = make('div', 'wish-head');
+    heading.append(make('strong', '', item.nama));
+    heading.append(make('span', '', `${item.kehadiran} · ${item.jumlah} tamu`));
+    article.append(heading);
+    if (item.ucapan) article.append(make('p', '', item.ucapan));
+    container.append(article);
+  });
 }
 
 function renderRekening(rekening, teks) {
@@ -312,6 +455,7 @@ function renderRekening(rekening, teks) {
 }
 
 async function salinNomor(nomor, teks) {
+  nomor = String(nomor).replace(/\s+/g, '');
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(nomor);
@@ -337,7 +481,11 @@ async function salinNomor(nomor, teks) {
 function mulaiCountdown(tanggalISO) {
   const target = new Date(tanggalISO).getTime();
   const tick = () => {
-    const sisa = Math.max(0, target - Date.now());
+    const sisa = target - Date.now();
+    const selesai = sisa <= 0;
+    byId('countdownDisplay').hidden = selesai;
+    byId('countdownComplete').hidden = !selesai;
+    if (selesai) return;
     isi('days', String(Math.floor(sisa / 86400000)).padStart(2, '0'));
     isi('hours', String(Math.floor((sisa % 86400000) / 3600000)).padStart(2, '0'));
     isi('minutes', String(Math.floor((sisa % 3600000) / 60000)).padStart(2, '0'));
@@ -370,6 +518,7 @@ byId('openingSkip').addEventListener('click', tutupOpening);
 function bukaUndangan() {
   if (!siapDibuka || sudahDibuka) return;
   sudahDibuka = true;
+  lepasListenerCover();
   tutupOpening();
   byId('cover').classList.add('open');
   document.body.classList.remove('locked');
@@ -379,64 +528,128 @@ function bukaUndangan() {
 }
 
 byId('openButton').addEventListener('click', bukaUndangan);
-window.addEventListener('wheel', event => {
-  if (event.deltaY > 0 && !sudahDibuka) {
-    event.preventDefault();
-    bukaUndangan();
-  }
-}, { passive: false });
 let posisiSentuh = null;
-window.addEventListener('touchstart', event => {
+function tanganiWheelCover(event) {
+  if (event.deltaY > 0 && !sudahDibuka) bukaUndangan();
+}
+function tanganiTouchStartCover(event) {
   posisiSentuh = event.touches[0]?.clientY ?? null;
-}, { passive: true });
-window.addEventListener('touchend', event => {
+}
+function tanganiTouchEndCover(event) {
   const akhir = event.changedTouches[0]?.clientY;
   if (posisiSentuh !== null && akhir !== undefined && posisiSentuh - akhir > 25 && !sudahDibuka) bukaUndangan();
   posisiSentuh = null;
-}, { passive: true });
-window.addEventListener('keydown', event => {
+}
+function tanganiKeyboardCover(event) {
   if (!sudahDibuka && ['ArrowDown', 'PageDown', ' '].includes(event.key) && !event.target.matches('button, a, input, textarea, select')) {
     event.preventDefault();
     bukaUndangan();
   }
-});
+}
+function lepasListenerCover() {
+  window.removeEventListener('wheel', tanganiWheelCover);
+  window.removeEventListener('touchstart', tanganiTouchStartCover);
+  window.removeEventListener('touchend', tanganiTouchEndCover);
+  window.removeEventListener('keydown', tanganiKeyboardCover);
+}
+window.addEventListener('wheel', tanganiWheelCover, { passive: true });
+window.addEventListener('touchstart', tanganiTouchStartCover, { passive: true });
+window.addEventListener('touchend', tanganiTouchEndCover, { passive: true });
+window.addEventListener('keydown', tanganiKeyboardCover);
+
+function nilaiData(path) {
+  return path.split('.').reduce((value, key) => value?.[key], undangan);
+}
 
 // Modul menu: panel dapat ditutup lewat tombol, tautan, atau Escape.
 function renderMenu(teks) {
-  const links = [
-    ['pembuka', teks.menuPembuka], ['mempelai-wanita', undangan.mempelai.panggilanWanita],
-    ['mempelai-pria', undangan.mempelai.panggilanPria], ['save-the-date', teks.saveTheDate],
-    ['cerita-cinta', teks.ceritaCinta], ['detail-acara', teks.menuDetailAcara],
-    ['lembaran-kenangan', teks.lembaranKenangan], ['rsvp-section', teks.rsvpTitle],
-    ['amplop-digital', teks.amplop], ['penutup', teks.terimaKasih]
-  ];
+  byId('menuPanel').style.setProperty('--menu-image', `url("${undangan.foto.cover}")`);
   isi('menuLabel', teks.menu);
   isi('menuEyebrow', teks.navigasi);
   isi('menuCloseLabel', teks.tutup);
-  links.forEach(([target, label]) => {
-    const link = make('a', '', label);
-    link.href = `#${target}`;
-    link.addEventListener('click', tutupMenu);
+  isi('menuCouple', `${undangan.mempelai.panggilanWanita} & ${undangan.mempelai.panggilanPria}`);
+  isi('menuWeddingDate', undangan.tanggal.teks);
+  const sections = [...document.querySelectorAll('main [data-menu]')];
+  sections.forEach((section, index) => {
+    const link = make('a', 'menu-link');
+    link.href = `#${section.id}`;
+    link.dataset.target = section.id;
+    link.style.animationDelay = `${index * 35}ms`;
+    link.append(make('span', 'menu-marker', '♡'));
+    link.append(make('span', 'menu-number', String(index + 1).padStart(2, '0')));
+    link.append(make('span', 'menu-title', nilaiData(section.dataset.menu) || section.id));
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      tutupMenu();
+      section.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    });
     byId('menuLinks').append(link);
   });
   byId('menuOpen').addEventListener('click', bukaMenu);
   byId('menuClose').addEventListener('click', tutupMenu);
+  byId('menuBackdrop').addEventListener('click', tutupMenu);
+  pantauMenuAktif(sections);
 }
 
 function bukaMenu() {
   const panel = byId('menuPanel');
+  if (panel.classList.contains('open')) return;
   panel.inert = false;
   panel.setAttribute('aria-hidden', 'false');
   panel.classList.add('open');
+  byId('menuOpen').setAttribute('aria-expanded', 'true');
+  document.documentElement.classList.add('menu-open');
+  document.body.classList.add('menu-open');
   byId('menuClose').focus();
 }
 
 function tutupMenu() {
   const panel = byId('menuPanel');
+  const memangTerbuka = panel.classList.contains('open');
   panel.classList.remove('open');
   panel.setAttribute('aria-hidden', 'true');
   panel.inert = true;
-  byId('menuOpen').focus();
+  byId('menuOpen').setAttribute('aria-expanded', 'false');
+  document.documentElement.classList.remove('menu-open');
+  document.body.classList.remove('menu-open');
+  if (memangTerbuka) byId('menuOpen').focus();
+}
+
+function pantauMenuAktif(sections) {
+  const tandaiAktif = () => {
+    const current = sections.map(section => {
+      const rect = section.getBoundingClientRect();
+      const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+      return { id: section.id, ratio: visibleHeight / Math.max(rect.height, 1) };
+    }).sort((left, right) => right.ratio - left.ratio)[0];
+    document.querySelectorAll('.menu-link').forEach(link => {
+      const active = link.dataset.target === current?.id && current.ratio > 0;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(tandaiAktif, { threshold: [0, .01, .1, .25, .5, .75, 1] });
+    sections.forEach(section => observer.observe(section));
+  }
+  window.addEventListener('scroll', tandaiAktif, { passive: true });
+  window.addEventListener('resize', tandaiAktif, { passive: true });
+  tandaiAktif();
+}
+
+function jagaFokusMenu(event) {
+  if (event.key !== 'Tab' || !byId('menuPanel').classList.contains('open')) return;
+  const focusable = [...byId('menuPanel').querySelectorAll('a[href], button:not([disabled])')];
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 // Modul musik: berkas opsional, dan browser baru diminta memutar setelah cover dibuka.
@@ -555,16 +768,29 @@ function jedaInstrumental() {
   byId('musicToggle').classList.remove('playing');
 }
 
-function bukaLightbox(foto) {
+function bukaLightbox(index, trigger) {
+  lightboxIndex = index;
+  lightboxReturnFocus = trigger;
+  tampilkanFotoLightbox();
   const lightbox = byId('lightbox');
-  const image = byId('lightboxImage');
-  image.src = foto.src;
-  image.alt = foto.alt;
-  isi('lightboxCloseLabel', undangan.teks.lightboxTutup);
   lightbox.inert = false;
   lightbox.setAttribute('aria-hidden', 'false');
   lightbox.classList.add('open');
+  document.documentElement.classList.add('lightbox-open');
+  document.body.classList.add('lightbox-open');
   byId('lightboxClose').focus();
+}
+
+function tampilkanFotoLightbox() {
+  const foto = undangan.galeri[lightboxIndex];
+  const image = byId('lightboxImage');
+  image.src = foto.src;
+  image.alt = foto.alt;
+}
+
+function pindahLightbox(arah) {
+  lightboxIndex = (lightboxIndex + arah + undangan.galeri.length) % undangan.galeri.length;
+  tampilkanFotoLightbox();
 }
 
 function tutupLightbox() {
@@ -573,16 +799,33 @@ function tutupLightbox() {
   lightbox.setAttribute('aria-hidden', 'true');
   lightbox.inert = true;
   byId('lightboxImage').removeAttribute('src');
+  document.documentElement.classList.remove('lightbox-open');
+  document.body.classList.remove('lightbox-open');
+  lightboxReturnFocus?.focus();
 }
 
 byId('lightboxClose').addEventListener('click', tutupLightbox);
+byId('lightboxPrevious').addEventListener('click', () => pindahLightbox(-1));
+byId('lightboxNext').addEventListener('click', () => pindahLightbox(1));
 byId('lightbox').addEventListener('click', event => {
   if (event.target === byId('lightbox')) tutupLightbox();
 });
+let lightboxTouchStart = null;
+byId('lightbox').addEventListener('touchstart', event => {
+  lightboxTouchStart = event.target === byId('lightboxImage') ? event.touches[0]?.clientX ?? null : null;
+}, { passive: true });
+byId('lightbox').addEventListener('touchend', event => {
+  const end = event.changedTouches[0]?.clientX;
+  if (lightboxTouchStart !== null && end !== undefined && Math.abs(end - lightboxTouchStart) > 45) pindahLightbox(end < lightboxTouchStart ? 1 : -1);
+  lightboxTouchStart = null;
+}, { passive: true });
 window.addEventListener('keydown', event => {
-  if (event.key !== 'Escape') return;
-  if (byId('lightbox').classList.contains('open')) tutupLightbox();
-  if (byId('menuPanel').classList.contains('open')) tutupMenu();
+  jagaFokusMenu(event);
+  const lightboxOpen = byId('lightbox').classList.contains('open');
+  if (lightboxOpen && event.key === 'ArrowRight') pindahLightbox(1);
+  else if (lightboxOpen && event.key === 'ArrowLeft') pindahLightbox(-1);
+  else if (event.key === 'Escape' && lightboxOpen) tutupLightbox();
+  else if (event.key === 'Escape' && byId('menuPanel').classList.contains('open')) tutupMenu();
 });
 
 function mulaiAnimasiMasuk() {
@@ -591,6 +834,7 @@ function mulaiAnimasiMasuk() {
     elemen.forEach(item => item.classList.add('is-visible'));
     return;
   }
+  document.documentElement.classList.add('motion-ready');
   const observer = new IntersectionObserver((entries, currentObserver) => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
@@ -608,6 +852,8 @@ fetch('data.json').then(response => {
   renderData(data);
   mulaiCountdown(data.tanggal.iso);
 }).catch(() => {
+  document.documentElement.classList.remove('motion-ready');
+  document.querySelectorAll('.reveal').forEach(item => item.classList.add('is-visible'));
   const error = byId('loadError');
   error.textContent = 'Data undangan tidak dapat dimuat. Jalankan lewat Live Server.';
   error.hidden = false;
