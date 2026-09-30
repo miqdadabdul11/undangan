@@ -48,8 +48,13 @@ function renderData(data) {
   isi('guestLabel', data.teks.kepada);
   isi('guestName', new URLSearchParams(window.location.search).get('to')?.trim() || data.teks.tamuDefault);
   isi('openLabel', data.teks.buka);
+  isi('openingEyebrow', data.teks.theWeddingOf);
+  isi('openingBride', data.mempelai.panggilanWanita);
+  isi('openingGroom', data.mempelai.panggilanPria);
+  isi('openingSkipLabel', data.teks.lewatiIntro);
   byId('cover').style.backgroundImage = data.foto.cover ? `url("${data.foto.cover}")` : '';
   byId('ambient').style.backgroundImage = data.foto.cover ? `url("${data.foto.cover}")` : '';
+  if (data.foto.cover) byId('openingSplash').style.setProperty('--opening-image', `url("${data.foto.cover}")`);
 
   isi('introEyebrow', data.teks.theWeddingOf);
   isi('introNames', namaPasangan);
@@ -140,6 +145,7 @@ function renderData(data) {
   siapkanMusik(data.musik, data.teks.musik);
   mulaiAnimasiMasuk();
   siapDibuka = true;
+  mulaiOpening();
 }
 
 // Modul detail acara: setiap tombol lokasi menggunakan tautan peta dari data klien.
@@ -322,10 +328,30 @@ function mulaiCountdown(tanggalISO) {
   window.setInterval(tick, 1000);
 }
 
+let timerOpening;
+function mulaiOpening() {
+  const opening = byId('openingSplash');
+  opening.setAttribute('aria-hidden', 'false');
+  opening.classList.add('is-visible');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  timerOpening = window.setTimeout(tutupOpening, reducedMotion ? 500 : 2400);
+}
+
+function tutupOpening() {
+  window.clearTimeout(timerOpening);
+  const opening = byId('openingSplash');
+  opening.classList.remove('is-visible');
+  opening.classList.add('is-leaving');
+  opening.setAttribute('aria-hidden', 'true');
+}
+
+byId('openingSkip').addEventListener('click', tutupOpening);
+
 // Modul cover: membuka undangan hanya sekali dan memulai audio setelah tindakan tamu.
 function bukaUndangan() {
   if (!siapDibuka || sudahDibuka) return;
   sudahDibuka = true;
+  tutupOpening();
   byId('cover').classList.add('open');
   document.body.classList.remove('locked');
   byId('floatingControls').hidden = false;
@@ -359,9 +385,9 @@ window.addEventListener('keydown', event => {
 // Modul menu: panel dapat ditutup lewat tombol, tautan, atau Escape.
 function renderMenu(teks) {
   const links = [
-    ['pembuka', teks.pembuka], ['mempelai-wanita', undangan.mempelai.panggilanWanita],
+    ['pembuka', teks.menuPembuka], ['mempelai-wanita', undangan.mempelai.panggilanWanita],
     ['mempelai-pria', undangan.mempelai.panggilanPria], ['save-the-date', teks.saveTheDate],
-    ['cerita-cinta', teks.ceritaCinta], ['detail-acara', teks.detail],
+    ['cerita-cinta', teks.ceritaCinta], ['detail-acara', teks.menuDetailAcara],
     ['lembaran-kenangan', teks.lembaranKenangan], ['rsvp-section', teks.rsvpTitle],
     ['amplop-digital', teks.amplop], ['penutup', teks.terimaKasih]
   ];

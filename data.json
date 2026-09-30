@@ -47,7 +47,7 @@
     { "bank": "Bank BCA", "nama": "Arga Pratama", "nomor": "1234567890" }
   ],
   "whatsappPemilik": "6285711591597",
-  "musik": "",
+  "musik": "TULUS - Teh Hijau (Official Lyric Video).mp3",
   "foto": {
     "cover": "foto/cover.webp",
     "pembuka": "foto/cover.webp",
@@ -66,6 +66,7 @@
     "kepada": "Kepada Yth. Bapak/Ibu/Saudara/i",
     "tamuDefault": "Tamu Undangan",
     "buka": "Buka Undangan",
+    "lewatiIntro": "Lewati",
     "pembuka": "Dengan penuh syukur, kami mengundang Anda untuk merayakan hari bahagia kami",
     "theBride": "The bride",
     "theGroom": "The groom",
@@ -111,6 +112,8 @@
     "pesanPenutup": "Kehadiran dan doa Anda akan menjadi bagian indah dari hari yang kami kenang seumur hidup. Sampai berjumpa di hari bahagia kami.",
     "bagikanWhatsApp": "Bagikan lewat WhatsApp",
     "menu": "MENU",
+    "menuPembuka": "Pembuka",
+    "menuDetailAcara": "Detail acara",
     "navigasi": "Jelajahi undangan",
     "tutup": "Tutup",
     "musik": "Putar atau jeda musik",
