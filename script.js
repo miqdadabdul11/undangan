@@ -11,6 +11,25 @@ let undangan;
 let siapDibuka = false;
 let sudahDibuka = false;
 let timerToast;
+let audioContext;
+let musicMaster;
+let musicMode = 'file';
+let synthBeatTimer;
+let synthBeatIndex = 0;
+let synthPlaying = false;
+const synthNotes = new Set();
+const chordProgression = [
+  [130.81, 164.81, 196, 246.94],
+  [110, 130.81, 164.81, 196],
+  [87.31, 130.81, 174.61, 220],
+  [98, 146.83, 196, 220]
+];
+const melodyProgression = [
+  [392, 493.88, 587.33, 493.88],
+  [392, 440, 523.25, 659.25],
+  [440, 523.25, 587.33, 523.25],
+  [392, 493.88, 587.33, 493.88]
+];
 
 function tampilkanToast(pesan) {
   const toast = byId('toast');
@@ -423,24 +442,41 @@ function tutupMenu() {
 // Modul musik: berkas opsional, dan browser baru diminta memutar setelah cover dibuka.
 function siapkanMusik(sumber, label) {
   if (!sumber) return;
+  musicMode = sumber === 'instrumental' ? 'instrumental' : 'file';
+  isi('musicLabel', label);
+  byId('musicToggle').addEventListener('click', toggleMusik);
+
+  if (musicMode === 'instrumental') {
+    if (!window.AudioContext && !window.webkitAudioContext) return;
+    byId('musicToggle').hidden = false;
+    return;
+  }
+
   const audio = byId('weddingMusic');
   audio.src = sumber;
-  isi('musicLabel', label);
   audio.addEventListener('error', () => { byId('musicToggle').hidden = true; }, { once: true });
   fetch(sumber, { method: 'HEAD' }).then(response => {
     if (!response.ok) return;
     byId('musicToggle').hidden = false;
   }).catch(() => { byId('musicToggle').hidden = true; });
-  byId('musicToggle').addEventListener('click', toggleMusik);
 }
 
 function mulaiMusik() {
+  if (musicMode === 'instrumental') {
+    void mulaiInstrumental();
+    return;
+  }
   const audio = byId('weddingMusic');
   if (!audio.src || byId('musicToggle').hidden) return;
   audio.play().then(() => byId('musicToggle').classList.add('playing')).catch(() => {});
 }
 
 function toggleMusik() {
+  if (musicMode === 'instrumental') {
+    if (synthPlaying) jedaInstrumental();
+    else void mulaiInstrumental();
+    return;
+  }
   const audio = byId('weddingMusic');
   if (audio.paused) {
     audio.play().then(() => byId('musicToggle').classList.add('playing')).catch(() => {});
@@ -448,6 +484,75 @@ function toggleMusik() {
     audio.pause();
     byId('musicToggle').classList.remove('playing');
   }
+}
+
+async function mulaiInstrumental() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return;
+  if (!audioContext) {
+    audioContext = new AudioContextClass();
+    musicMaster = audioContext.createGain();
+    musicMaster.gain.value = 0;
+    musicMaster.connect(audioContext.destination);
+  }
+  try {
+    await audioContext.resume();
+  } catch (error) {
+    return;
+  }
+  synthPlaying = true;
+  synthBeatIndex = 0;
+  const now = audioContext.currentTime;
+  musicMaster.gain.cancelScheduledValues(now);
+  musicMaster.gain.setTargetAtTime(0.28, now, 0.12);
+  byId('musicToggle').classList.add('playing');
+  mainkanBeatInstrumental();
+  synthBeatTimer = window.setInterval(mainkanBeatInstrumental, (60 / 72) * 1000);
+}
+
+function mainkanBeatInstrumental() {
+  if (!synthPlaying || !audioContext || !musicMaster) return;
+  const beat = 60 / 72;
+  const bar = Math.floor(synthBeatIndex / 4) % chordProgression.length;
+  const beatInBar = synthBeatIndex % 4;
+  const startsAt = audioContext.currentTime + 0.025;
+  if (beatInBar === 0) {
+    chordProgression[bar].forEach(frequency => buatNadaInstrumental(frequency, startsAt, beat * 3.75, 0.035, 'sine'));
+  }
+  buatNadaInstrumental(melodyProgression[bar][beatInBar], startsAt, beat * 0.78, 0.075, 'triangle');
+  synthBeatIndex = (synthBeatIndex + 1) % 16;
+}
+
+function buatNadaInstrumental(frequency, startsAt, duration, volume, waveform) {
+  const oscillator = audioContext.createOscillator();
+  const envelope = audioContext.createGain();
+  oscillator.type = waveform;
+  oscillator.frequency.setValueAtTime(frequency, startsAt);
+  envelope.gain.setValueAtTime(0.0001, startsAt);
+  envelope.gain.exponentialRampToValueAtTime(volume, startsAt + 0.06);
+  envelope.gain.exponentialRampToValueAtTime(0.0001, startsAt + duration);
+  oscillator.connect(envelope);
+  envelope.connect(musicMaster);
+  oscillator.onended = () => {
+    synthNotes.delete(oscillator);
+    oscillator.disconnect();
+    envelope.disconnect();
+  };
+  synthNotes.add(oscillator);
+  oscillator.start(startsAt);
+  oscillator.stop(startsAt + duration + 0.02);
+}
+
+function jedaInstrumental() {
+  synthPlaying = false;
+  window.clearInterval(synthBeatTimer);
+  const now = audioContext.currentTime;
+  musicMaster.gain.cancelScheduledValues(now);
+  musicMaster.gain.setTargetAtTime(0.0001, now, 0.035);
+  synthNotes.forEach(note => {
+    try { note.stop(now + 0.12); } catch (error) {}
+  });
+  byId('musicToggle').classList.remove('playing');
 }
 
 function bukaLightbox(foto) {

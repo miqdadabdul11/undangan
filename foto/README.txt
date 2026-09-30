@@ -12,4 +12,6 @@ File yang dipakai data.json saat ini:
 
 Nama file dapat diganti di properti "foto" dan "galeri" pada data.json. Gunakan nama file sederhana tanpa spasi untuk aset baru. Foto latar yang tidak tersedia otomatis jatuh ke latar gradien gelap; foto galeri yang tidak tersedia tidak akan ditampilkan.
 
-Musik bersifat opsional. Isi properti "musik" di data.json dengan path berkas audio yang tersedia, misalnya "musik/lagu.mp3". Tombol musik disembunyikan bila berkas tidak ditemukan.
+Musik dapat memakai instrumental orisinal bawaan dengan mengisi properti "musik" di data.json dengan nilai "instrumental". Audio dibuat oleh Web Audio setelah undangan dibuka, tanpa file tambahan.
+
+Jika memakai rekaman sendiri atau file yang lisensinya mengizinkan publikasi dan distribusi, isi "musik" dengan path audio, misalnya "musik/lagu.mp3". Tombol musik disembunyikan bila berkas tidak ditemukan.
