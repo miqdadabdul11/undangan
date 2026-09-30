@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120e0b">
+  <title>Undangan Pernikahan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Italiana&family=Jost:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="locked">
+  <div class="ambient" id="ambient" aria-hidden="true"></div>
+  <div class="shell">
+    <p class="load-error" id="loadError" role="alert" hidden></p>
+    <section class="cover" id="cover" aria-labelledby="coverNames">
+      <div class="cover-content">
+        <p class="eyebrow italic" id="coverEyebrow"></p>
+        <h1 class="cover-names" id="coverNames"><span id="coverBride"></span><em>&amp;</em><span id="coverGroom"></span></h1>
+        <p class="cover-date italic" id="coverDate"></p>
+        <div class="cover-flourish" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></div>
+      </div>
+      <div class="cover-invite">
+        <p class="italic" id="guestLabel"></p>
+        <p class="guest-name" id="guestName"></p>
+        <button class="button button-outline" id="openButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Zm0 13A2.5 2.5 0 0 1 6.5 16H20M8 7h8m-8 3h8"/></svg>
+          <span id="openLabel"></span>
+        </button>
+      </div>
+    </section>
+
+    <main id="invitation" aria-live="off">
+      <section class="scene intro" id="pembuka">
+        <div class="section-inner intro-inner reveal">
+          <div class="date-rail"><span id="introDay"></span><i></i><span id="introMonth"></span><i></i><span id="introYear"></span><b aria-hidden="true">♡</b></div>
+          <p class="eyebrow italic" id="introEyebrow"></p>
+          <h2 class="display intro-title" id="introNames"></h2>
+          <p class="intro-date" id="introDate"></p>
+          <div class="verse"><span aria-hidden="true"></span><div><p class="verse-reference" id="verseReference"></p><p class="verse-text italic" id="verseText"></p></div></div>
+        </div>
+      </section>
+
+      <section class="scene person-section" id="mempelai-wanita">
+        <div class="section-inner person-inner reveal">
+          <p class="script-word" id="brideRole"></p>
+          <h2 class="display person-name" id="brideName"></h2>
+          <p class="parent-label" id="brideParentLabel"></p>
+          <p class="parent-names" id="brideParents"></p>
+        </div>
+      </section>
+
+      <section class="scene person-section" id="mempelai-pria">
+        <div class="section-inner person-inner reveal">
+          <p class="script-word" id="groomRole"></p>
+          <h2 class="display person-name" id="groomName"></h2>
+          <p class="parent-label" id="groomParentLabel"></p>
+          <p class="parent-names" id="groomParents"></p>
+        </div>
+      </section>
+
+      <section class="scene save-date" id="save-the-date">
+        <div class="section-inner save-inner reveal">
+          <p class="script-word countdown-script" id="countdownScript"></p>
+          <h2 class="display save-title" id="saveTitle"></h2>
+          <div class="countdown" aria-label="Hitung mundur">
+            <div><b id="days">00</b><span id="daysLabel"></span></div>
+            <div><b id="hours">00</b><span id="hoursLabel"></span></div>
+            <div><b id="minutes">00</b><span id="minutesLabel"></span></div>
+            <div><b id="seconds">00</b><span id="secondsLabel"></span></div>
+          </div>
+          <div class="date-mark"><i></i><p id="saveDate"></p><i></i></div>
+          <blockquote><p class="italic" id="saveQuote"></p><cite id="saveSource"></cite></blockquote>
+        </div>
+      </section>
+
+      <section class="scene story-section" id="cerita-cinta">
+        <div class="story-inner section-inner reveal">
+          <h2 class="vertical-title display" id="storyTitle"></h2>
+          <div class="story-content">
+            <div class="story-circles" id="storyPhotos"></div>
+            <blockquote><p class="italic" id="storyQuote"></p><cite id="storySource"></cite></blockquote>
+            <div class="story-copy" id="storyCopy"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene details-section" id="detail-acara">
+        <div class="section-inner reveal">
+          <header class="section-heading"><p class="script-word" id="eventScript"></p><h2 class="display" id="eventTitle"></h2></header>
+          <div class="event-timeline" id="eventTimeline"></div>
+          <a class="button calendar-button" id="calendarLink" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v4m10-4v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/></svg>
+            <span id="calendarLabel"></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="scene gallery-section" id="lembaran-kenangan">
+        <div class="section-inner gallery-inner reveal">
+          <header class="section-heading"><p class="script-word" id="galleryScript"></p><h2 class="display" id="galleryTitle"></h2></header>
+          <div class="gallery-strip" id="galleryStrip" tabindex="0"></div>
+          <div class="read-more"><span id="galleryHint"></span><i></i><b aria-hidden="true">→</b></div>
+        </div>
+      </section>
+
+      <section class="scene rsvp-section" id="rsvp-section">
+        <div class="section-inner reveal">
+          <header class="section-heading"><p class="script-word" id="rsvpScript"></p><h2 class="display" id="rsvpTitle"></h2></header>
+          <form id="rsvpForm" novalidate></form>
+          <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="scene envelope-section" id="amplop-digital">
+        <div class="section-inner envelope-inner reveal">
+          <p class="eyebrow italic" id="envelopeEyebrow"></p>
+          <h2 class="display" id="envelopeTitle"></h2>
+          <p class="envelope-note" id="envelopeNote"></p>
+          <div class="account" id="accountCard"></div>
+        </div>
+      </section>
+
+      <section class="scene closing-section" id="penutup">
+        <div class="section-inner closing-inner reveal">
+          <p class="eyebrow italic" id="closingEyebrow"></p>
+          <h2 class="script-word thanks-script" id="thanksScript"></h2>
+          <p class="closing-message" id="closingMessage"></p>
+          <p class="closing-names display" id="closingNames"></p>
+          <a class="button button-outline" id="shareLink" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v7h14v-7"/></svg>
+            <span id="shareLabel"></span>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="floating-controls" id="floatingControls" hidden>
+    <button class="menu-trigger" id="menuOpen" type="button"><span id="menuLabel"></span><b aria-hidden="true">♡</b></button>
+    <button class="music-trigger" id="musicToggle" type="button" hidden>
+      <span class="record" aria-hidden="true"><i></i></span><span class="visually-hidden" id="musicLabel"></span>
+    </button>
+  </div>
+  <nav class="menu-panel" id="menuPanel" aria-hidden="true" inert>
+    <div class="menu-top"><p class="eyebrow italic" id="menuEyebrow"></p><button class="icon-button" id="menuClose" type="button"><span class="visually-hidden" id="menuCloseLabel"></span><b aria-hidden="true">×</b></button></div>
+    <div class="menu-links" id="menuLinks"></div>
+  </nav>
+  <div class="lightbox" id="lightbox" aria-hidden="true" inert>
+    <button class="icon-button lightbox-close" id="lightboxClose" type="button"><span class="visually-hidden" id="lightboxCloseLabel"></span><b aria-hidden="true">×</b></button>
+    <img id="lightboxImage" alt="">
+  </div>
+  <audio id="weddingMusic" loop preload="none"></audio>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js" defer></script>
+</body>
+</html>

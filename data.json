@@ -1,0 +1,121 @@
+{
+  "mempelai": {
+    "wanita": "Salsa Anindita Putri",
+    "pria": "Arga Pratama Nugraha",
+    "panggilanWanita": "Salsa",
+    "panggilanPria": "Arga"
+  },
+  "orangTua": {
+    "wanita": ["Ibu Rina Marlina", "Bapak Hendra Wijaya"],
+    "pria": ["Ibu Sari Utami", "Bapak Bambang Nugraha"]
+  },
+  "tanggal": {
+    "teks": "Sabtu, 20 Desember 2026",
+    "iso": "2026-12-20T09:00:00+07:00",
+    "angka": { "hari": "20", "bulan": "12", "tahun": "26" },
+    "tanggalAcara": "20 Desember 2026"
+  },
+  "acara": [
+    { "judul": "Akad", "jam": "09.00 WIB", "tanggal": "Sabtu, 20 Desember 2026", "alamat": "Gedung Serbaguna Pakuan, Jl. Merdeka No. 12, Bandung" },
+    { "judul": "Resepsi", "jam": "11.00–14.00 WIB", "tanggal": "Sabtu, 20 Desember 2026", "alamat": "Gedung Serbaguna Pakuan, Jl. Merdeka No. 12, Bandung" }
+  ],
+  "lokasi": {
+    "nama": "Gedung Serbaguna Pakuan",
+    "alamat": "Jl. Merdeka No. 12, Bandung",
+    "maps": "https://www.google.com/maps/search/?api=1&query=Gedung+Serbaguna+Pakuan%2C+Jl.+Merdeka+No.+12%2C+Bandung"
+  },
+  "ayat": {
+    "referensi": "QS. Ar-Rum: 21",
+    "teks": "Di antara tanda kebesaran-Nya, Dia menciptakan pasangan agar kita menemukan ketenteraman, kasih, dan sayang."
+  },
+  "kutipanTanggal": "Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu.",
+  "sumberKutipanTanggal": "QS. Ar-Rum: 21",
+  "kutipanCerita": "Dua langkah yang berjalan sendiri-sendiri, perlahan menemukan arah yang sama.",
+  "sumberKutipanCerita": "Salsa & Arga",
+  "ceritaCinta": [
+    "Kami bertemu dalam percakapan sederhana yang tak terasa menjadi kebiasaan yang paling kami nantikan.",
+    "Dari sana, kami belajar bahwa rumah kadang bukan sebuah tempat, melainkan seseorang yang membuat kita ingin pulang."
+  ],
+  "galeri": [
+    { "src": "foto/1.jpeg", "alt": "Salsa dan Arga mengabadikan momen bersama" },
+    { "src": "foto/2.jpeg", "alt": "Potret kenangan menjelang hari pernikahan" },
+    { "src": "foto/3.jpeg", "alt": "Salsa dan Arga dalam suasana hangat" },
+    { "src": "foto/4.jpeg", "alt": "Potret perjalanan cinta Salsa dan Arga" },
+    { "src": "foto/WhatsApp Image 2026-09-29 at 23.45.41.jpeg", "alt": "Momen istimewa Salsa dan Arga" }
+  ],
+  "rekening": [
+    { "bank": "Bank BCA", "nama": "Arga Pratama", "nomor": "1234567890" }
+  ],
+  "whatsappPemilik": "6285711591597",
+  "musik": "",
+  "foto": {
+    "cover": "foto/cover.webp",
+    "pembuka": "foto/cover.webp",
+    "wanita": "foto/1.jpeg",
+    "pria": "foto/2.jpeg",
+    "tanggal": "foto/3.jpeg",
+    "cerita": "foto/4.jpeg",
+    "acara": "foto/cover.webp",
+    "galeri": "foto/2.jpeg",
+    "rsvp": "foto/3.jpeg",
+    "amplop": "foto/4.jpeg",
+    "penutup": "foto/cover.webp"
+  },
+  "teks": {
+    "theWeddingOf": "The wedding of",
+    "kepada": "Kepada Yth. Bapak/Ibu/Saudara/i",
+    "tamuDefault": "Tamu Undangan",
+    "buka": "Buka Undangan",
+    "pembuka": "Dengan penuh syukur, kami mengundang Anda untuk merayakan hari bahagia kami",
+    "theBride": "The bride",
+    "theGroom": "The groom",
+    "putriDari": "Putri dari",
+    "putraDari": "Putra dari",
+    "hitungMundur": "Hitung mundur",
+    "saveTheDate": "Save the date",
+    "hari": "Hari",
+    "jam": "Jam",
+    "menit": "Menit",
+    "detik": "Detik",
+    "ceritaCinta": "Cerita cinta",
+    "detail": "Detail",
+    "acara": "Acara",
+    "lihatLokasi": "Lihat Lokasi",
+    "simpanKalender": "Simpan ke kalender",
+    "lembaranKenangan": "Lembaran kenangan",
+    "kenanganScript": "Dalam bingkai",
+    "scrollReadMore": "Scroll to read more",
+    "rsvpScript": "Hadirkan diri",
+    "rsvpTitle": "Konfirmasi kehadiran",
+    "nama": "Nama",
+    "namaPlaceholder": "Nama lengkap",
+    "kehadiran": "Kehadiran",
+    "hadir": "Hadir",
+    "tidakHadir": "Tidak hadir",
+    "jumlahTamu": "Jumlah tamu",
+    "ucapan": "Ucapan dan doa",
+    "ucapanPlaceholder": "Tuliskan ucapan untuk kedua mempelai",
+    "kirim": "Kirim ucapan",
+    "formError": "Mohon isi nama dan pilih kehadiran.",
+    "whatsappStatus": "Draft pesan sudah disiapkan. Tekan Kirim di WhatsApp agar RSVP sampai ke pemilik undangan.",
+    "whatsappLanjut": "Buka WhatsApp",
+    "whatsappNomorError": "Nomor WhatsApp pemilik belum diatur.",
+    "amplopEyebrow": "Tanda kasih",
+    "amplop": "Amplop digital",
+    "amplopNote": "Doa restu Anda adalah hadiah terindah. Bagi yang berkenan, tanda kasih dapat dikirim melalui rekening berikut.",
+    "salinNomor": "Salin nomor",
+    "rekeningTersalin": "Nomor rekening disalin",
+    "salinGagal": "Salin nomor ini secara manual: ",
+    "penutupEyebrow": "Dari hati yang paling dalam",
+    "terimaKasih": "Terimakasih",
+    "pesanPenutup": "Kehadiran dan doa Anda akan menjadi bagian indah dari hari yang kami kenang seumur hidup. Sampai berjumpa di hari bahagia kami.",
+    "bagikanWhatsApp": "Bagikan lewat WhatsApp",
+    "menu": "MENU",
+    "navigasi": "Jelajahi undangan",
+    "tutup": "Tutup",
+    "musik": "Putar atau jeda musik",
+    "lightboxTutup": "Tutup foto",
+    "lokasiKeterangan": "Bertempat di:",
+    "ucapanDiterima": "Terima kasih atas doa baiknya."
+  }
+}
