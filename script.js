@@ -504,7 +504,7 @@ async function mulaiInstrumental() {
   synthBeatIndex = 0;
   const now = audioContext.currentTime;
   musicMaster.gain.cancelScheduledValues(now);
-  musicMaster.gain.setTargetAtTime(0.28, now, 0.12);
+  musicMaster.gain.setTargetAtTime(0.5, now, 0.12);
   byId('musicToggle').classList.add('playing');
   mainkanBeatInstrumental();
   synthBeatTimer = window.setInterval(mainkanBeatInstrumental, (60 / 72) * 1000);
@@ -517,9 +517,9 @@ function mainkanBeatInstrumental() {
   const beatInBar = synthBeatIndex % 4;
   const startsAt = audioContext.currentTime + 0.025;
   if (beatInBar === 0) {
-    chordProgression[bar].forEach(frequency => buatNadaInstrumental(frequency, startsAt, beat * 3.75, 0.035, 'sine'));
+    chordProgression[bar].forEach(frequency => buatNadaInstrumental(frequency, startsAt, beat * 3.75, 0.055, 'sine'));
   }
-  buatNadaInstrumental(melodyProgression[bar][beatInBar], startsAt, beat * 0.78, 0.075, 'triangle');
+  buatNadaInstrumental(melodyProgression[bar][beatInBar], startsAt, beat * 0.78, 0.13, 'triangle');
   synthBeatIndex = (synthBeatIndex + 1) % 16;
 }
 
